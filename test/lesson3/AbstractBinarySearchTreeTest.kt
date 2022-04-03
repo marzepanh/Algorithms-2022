@@ -228,15 +228,17 @@ abstract class AbstractBinarySearchTreeTest {
             binarySet += element
         }
         for (element in controlSet) {
-            val value1 = iterator1.next()
-            assertEquals(
-                iterator2.next(), value1,
-                "Calling BinarySearchTreeIterator.hasNext() changes the state of the iterator."
-            )
-            assertEquals(
-                value1, element,
-                "Values must match"
-            )
+            if (iterator1.hasNext()) {
+                val value1 = iterator1.next()
+                assertEquals(
+                    iterator2.next(), value1,
+                    "Calling BinarySearchTreeIterator.hasNext() changes the state of the iterator."
+                )
+                assertEquals(
+                    value1, element,
+                    "Values must match"
+                )
+            }
         }
 
         println("All clear!")
