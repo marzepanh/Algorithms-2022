@@ -109,8 +109,9 @@ abstract class AbstractBinarySearchTreeTest {
     protected fun doRemoveTest() {
         implementationTest { create().remove(0) }
         val random = Random()
-        for (iteration in 1..100) {
-            val controlSet = mutableSetOf<Int>()
+
+        for (iteration in 1..101) {
+            var controlSet = mutableSetOf<Int>()
             val removeIndex = random.nextInt(20) + 1
             var toRemove = 0
             for (i in 1..20) {
@@ -119,6 +120,10 @@ abstract class AbstractBinarySearchTreeTest {
                 if (i == removeIndex) {
                     toRemove = newNumber
                 }
+            }
+            if (iteration == 101) {
+                controlSet = mutableSetOf(42)
+                toRemove = 42
             }
             println("Initial set: $controlSet")
             val binarySet = create()
@@ -162,6 +167,7 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("All clear!")
         }
+
     }
 
     protected fun doIteratorTest() {
@@ -205,6 +211,35 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("All clear!")
         }
+
+        val controlSet = TreeSet<Int>()
+        for (i in 1..20) {
+            controlSet.add(random.nextInt(300))
+        }
+        println("Control set: $controlSet")
+        val binarySet = create()
+        val iterator1 = binarySet.iterator()
+        val iterator2 = binarySet.iterator()
+        assertFalse(
+            iterator1.hasNext(),
+            "Iterator of an empty tree should not have any next elements."
+        )
+        for (element in controlSet) {
+            binarySet += element
+        }
+        for (element in controlSet) {
+            val value1 = iterator1.next()
+            assertEquals(
+                iterator2.next(), value1,
+                "Calling BinarySearchTreeIterator.hasNext() changes the state of the iterator."
+            )
+            assertEquals(
+                value1, element,
+                "Values must match"
+            )
+        }
+
+        println("All clear!")
     }
 
     protected fun doIteratorRemoveTest() {
@@ -271,6 +306,25 @@ abstract class AbstractBinarySearchTreeTest {
                 )
             }
             println("All clear!")
+        }
+        val controlSet = TreeSet<Int>()
+        for (i in 1..20) {
+            controlSet.add(i)
+        }
+        println("Initial set: $controlSet")
+        val binarySet = create()
+        val iterator = binarySet.iterator()
+        for (element in controlSet) {
+            binarySet += element
+        }
+        for (i in 1..20) {
+            if (iterator.hasNext()) {
+                iterator.next()
+                iterator.remove()
+                assertFailsWith<IllegalStateException>("BinarySearchTreeIterator.remove() was successfully called twice in a row.") {
+                    iterator.remove()
+                }
+            }
         }
     }
 

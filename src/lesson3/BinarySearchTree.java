@@ -98,11 +98,93 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      * Спецификация: {@link Set#remove(Object)} (Ctrl+Click по remove)
      *
      * Средняя
+     *
+     * Затраты:
+     *  T = O(h), где h - высота дерева
+     *  R = O(1)
      */
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        if (!contains(o)) return false;
+        @SuppressWarnings("unchecked")
+        T t = (T) o;
+        Node<T> newNode = find(t);
+        assert newNode != null;
+        Node<T> parent = parent(t);
+
+        if (newNode.left == null && newNode.right == null)
+            removeLeaf(parent, newNode);
+         else if (newNode.left == null || newNode.right == null)
+            removeWithOneChild(parent, newNode);
+         else {
+            Node<T> minNode = findMinNode(newNode.right);
+            Node<T> minNodeParent = parent(minNode.value);
+
+            if (minNode.left == null && minNode.right == null)
+                removeLeaf(minNodeParent, minNode);
+            else
+                removeWithOneChild(minNodeParent, minNode);
+
+            minNode.left = newNode.left;
+            minNode.right = newNode.right;
+
+            if (parent != null) {
+                if (parent.left == newNode)
+                    parent.left = minNode;
+                else
+                    parent.right = minNode;
+            } else
+                root = minNode;
+        }
+         size--;
+        return true;
+    }
+
+    public void removeLeaf (Node<T> parent, Node<T> node) {
+        if (parent == null) {
+            root = null;
+            return;
+        }
+        if (parent.left == node) {
+            parent.left = null;
+        } else {
+            parent.right = null;
+        }
+    }
+
+    public void removeWithOneChild (Node<T> parent, Node<T> node) {
+        Node<T> newChild = node.left != null ? node.left : node.right;
+
+        if (parent == null) {
+            root = newChild;
+            return;
+        }
+        if (parent.left == node) {
+            parent.left = newChild;
+        } else {
+            parent.right = newChild;
+        }
+    }
+
+    public Node<T> findMinNode (Node<T> node) {
+        Node<T> lastNode = node;
+        while (true) {
+            if (lastNode.left == null) return lastNode;
+            lastNode = lastNode.left;
+        }
+    }
+
+    public Node<T> parent(T value) {
+        Node<T> parent = root;
+        Node<T> newNode = root;
+        if (newNode.value == value) return null;
+
+        while (newNode.value != value) {
+            int comparison = value.compareTo(newNode.value);
+            parent = newNode;
+            newNode = comparison > 0 ? parent.right : parent.left;
+        }
+        return parent;
     }
 
     @Nullable
@@ -119,8 +201,22 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     public class BinarySearchTreeIterator implements Iterator<T> {
 
+        Stack<Node<T>> stack;
+        Node<T> node;
+
         private BinarySearchTreeIterator() {
-            // Добавьте сюда инициализацию, если она необходима.
+            stack = new Stack<>();
+            node = null;
+
+            initLeftNodes(root);
+        }
+
+        private void initLeftNodes(Node<T> node) {
+            Node<T> newNode = node;
+            while (newNode != null) {
+                stack.push(newNode);
+                newNode = newNode.left;
+            }
         }
 
         /**
@@ -132,11 +228,14 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Спецификация: {@link Iterator#hasNext()} (Ctrl+Click по hasNext)
          *
          * Средняя
+         *
+         * Затраты:
+         *  T = O(1)
+         *  R = O(h) - хранение стека, где h - высота дерева
          */
         @Override
         public boolean hasNext() {
-            // TODO
-            throw new NotImplementedError();
+            return !stack.isEmpty();
         }
 
         /**
@@ -151,11 +250,17 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Спецификация: {@link Iterator#next()} (Ctrl+Click по next)
          *
          * Средняя
+         *
+         * Затраты:
+         *  T = O(1)
+         *  R = O(h) - хранение стека, где h - высота дерева
          */
         @Override
         public T next() {
-            // TODO
-            throw new NotImplementedError();
+            if (!hasNext()) throw new NoSuchElementException();
+            node = stack.pop();
+            initLeftNodes(node.right);
+            return node.value;
         }
 
         /**
@@ -169,11 +274,16 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Спецификация: {@link Iterator#remove()} (Ctrl+Click по remove)
          *
          * Сложная
+         *
+         * Затраты:
+         *  T = O(h)
+         *  R = O(1)
          */
         @Override
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            if (node == null) throw new IllegalStateException();
+            BinarySearchTree.this.remove(node.value); //O(h)
+            node = null;
         }
     }
 

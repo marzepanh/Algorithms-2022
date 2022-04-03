@@ -2,6 +2,7 @@ package lesson2;
 
 import kotlin.NotImplementedError;
 import kotlin.Pair;
+import java.util.Arrays;
 
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
@@ -96,9 +97,31 @@ public class JavaAlgorithms {
      * При сравнении подстрок, регистр символов *имеет* значение.
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
+     * Затраты:
+     *  T = O(n^2)
+     *  R = O(n^2)
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    static public String longestCommonSubstring(String first, String second) {
+        int[][] matrix = new int[second.length()][first.length()]; //O(n^2)
+        int[] firstIndex = {0};
+        int maxValue = -1;
+        for (int col = 0; col < first.length(); col++) { //O(n^2)
+            for (int row = 0; row < second.length(); row++) {
+                if (first.charAt(col) == second.charAt(row)) {
+                    if (row < 1 || col < 1)
+                        matrix[row][col] = 1;
+                    else
+                        matrix[row][col] = matrix[row-1][col-1] + 1;
+                    if (matrix[row][col] > maxValue) {
+                        maxValue = matrix[row][col];
+                        firstIndex[0] = col;
+                    }
+                } else
+                    matrix[row][col] = 0;
+            }
+        }
+        if (maxValue == -1) return "";
+        return first.substring(firstIndex[0] - maxValue + 1, firstIndex[0] + 1);
     }
 
     /**
@@ -110,8 +133,28 @@ public class JavaAlgorithms {
      *
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
+     *  Затраты:
+     *  T = O(n*log(log n))
+     *  R = O(n)
      */
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        if (limit <= 1) return 0;
+
+        boolean[] numIsPrime = new boolean[limit + 1]; //O(n)
+        Arrays.fill(numIsPrime, true);
+        numIsPrime[0] = false;
+        numIsPrime[1] = false;
+        for (int i = 2; i*i <= limit; i++) { // Sieve of Eratosthenes, O(n*log(log n))
+            if (numIsPrime[i]) {
+                for (int p = i*i; p <= limit; p += i) {
+                    numIsPrime[p] = false;
+                }
+            }
+        }
+        int result = 0;
+        for (boolean b : numIsPrime) {
+            if (b) result++;
+        }
+        return result;
     }
 }

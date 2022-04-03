@@ -1,13 +1,20 @@
 package lesson1
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.assertThrows
 import util.PerfResult
 import util.estimate
 import java.io.BufferedWriter
 import java.io.File
+import java.io.IOException
 import java.util.*
 import kotlin.math.abs
 import kotlin.system.measureNanoTime
+import lesson1.JavaTasks.mergeArrays
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTrue
+import kotlin.test.assertEquals
+
 
 abstract class AbstractTaskTests : AbstractFileTests() {
 
@@ -85,6 +92,14 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+        try {
+            val exception = Assertions.assertThrows(IOException::class.java) {
+                sortAddresses("input/addr_in4.txt", "temp.txt")
+            }
+            assertEquals("Wrong line format", exception.message)
+        } finally {
+            File("temp.txt").delete()
+        }
     }
 
     private fun generateTemperatures(size: Int): PerfResult<Unit> {
@@ -125,6 +140,23 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                     24.7
                     99.5
                     121.3
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortTemperatures("input/temp_in2.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    0
+                    2.1
+                    11.4
+                    11.8
+                    12.5
+                    12.6
+                    77.2
                 """.trimIndent()
             )
         } finally {

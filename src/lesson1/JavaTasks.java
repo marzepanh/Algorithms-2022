@@ -2,6 +2,11 @@ package lesson1;
 
 import kotlin.NotImplementedError;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.text.Collator;
+import java.util.*;
+
 @SuppressWarnings("unused")
 public class JavaTasks {
     /**
@@ -63,9 +68,60 @@ public class JavaTasks {
      * Садовая 5 - Сидоров Петр, Сидорова Мария
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
+     *
+     * Затраты:
+     *  T = O(n * log(n))
+     *  R = O(n)
      */
-    static public void sortAddresses(String inputName, String outputName) {
-        throw new NotImplementedError();
+    static public void sortAddresses(String inputName, String outputName) throws IOException{
+        HashMap<String, List<String>> addresses = new HashMap<>(); //O(n)
+
+        try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(inputName), StandardCharsets.UTF_8));
+            BufferedWriter writer = new BufferedWriter
+                    (new OutputStreamWriter(new FileOutputStream(outputName), StandardCharsets.UTF_8));
+            String line = reader.readLine();
+
+            while (line != null) {
+                if (!line.matches("[А-яЁё]+\\s[А-яЁё]+\\s-\\s[А-яЁё-]+\\s\\d+"))
+                    throw new IOException("Wrong line format");
+
+                String[] address = line.split("\\s-\\s");
+                if (addresses.containsKey(address[1])) {
+                    addresses.get(address[1]).add(address[0]);
+                } else {
+                    addresses.put(address[1], new ArrayList<>(Collections.singletonList(address[0])));
+                }
+                line = reader.readLine();
+            }
+            Collator ru_RUCollator = Collator.getInstance(new Locale("ru-RU"));
+
+            Map<String, List<String>> treeMap = new TreeMap<>((o1, o2) -> {
+                String[] so1 = o1.split(" ");
+                String[] so2 = o2.split(" ");
+                int alphabetCompare = ru_RUCollator.compare(so1[0], so2[0]);
+
+                if (alphabetCompare == 0) return Integer.valueOf(so1[1]).compareTo(Integer.valueOf(so2[1]));
+                return alphabetCompare;
+            });
+            treeMap.putAll(addresses); //O(n*log(n)
+            for (Map.Entry<String, List<String>> entry : treeMap.entrySet()) {
+                entry.getValue().sort(ru_RUCollator::compare);
+                writer.write(entry.getKey()
+                        .concat(" - ")
+                        .concat(String.join(", ", entry.getValue())));
+                writer.newLine();
+            }
+            reader.close();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public static void main(String[] args) {
     }
 
     /**
@@ -97,9 +153,33 @@ public class JavaTasks {
      * 24.7
      * 99.5
      * 121.3
+     *
+     * Затраты:
+     *  T = O(n * log(n))
+     *  R = O(n)
      */
     static public void sortTemperatures(String inputName, String outputName) {
-        throw new NotImplementedError();
+        List<String> temperatures = new ArrayList<>(); //O(n)
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(inputName));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputName));
+            String line = reader.readLine();
+
+            while (line != null) {
+                temperatures.add(line);
+
+                line = reader.readLine();
+            }
+            temperatures.sort(Comparator.comparing(Float::valueOf)); //O(n*log(n))
+            for (String temperature: temperatures) {
+                writer.write(temperature);
+                writer.newLine();
+            }
+            reader.close();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
