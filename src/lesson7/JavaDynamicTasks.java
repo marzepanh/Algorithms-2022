@@ -59,10 +59,6 @@ public class JavaDynamicTasks {
         return sb.reverse().toString();
     }
 
-    public static void main(String[] args) {
-        longestCommonSubSequence("12", "124");
-    }
-
     /**
      * Наибольшая возрастающая подпоследовательность
      * Сложная
