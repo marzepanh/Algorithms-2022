@@ -2,6 +2,8 @@ package lesson7;
 
 import kotlin.NotImplementedError;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -17,9 +19,48 @@ public class JavaDynamicTasks {
      * Если общей подпоследовательности нет, вернуть пустую строку.
      * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
      * При сравнении подстрок, регистр символов *имеет* значение.
+     * Затраты:
+     *  T = O(m * n) где m, n - длины first и second
+     *  R = O(m * n)
      */
     public static String longestCommonSubSequence(String first, String second) {
-        throw new NotImplementedError();
+        if (first.equals(second)) return first;
+        int [][] matrix = new int[first.length() + 1][second.length() + 1];
+        for (int i = 0; i < first.length() + 1; i++)
+            matrix[i][0] = 0;
+        for (int i = 1; i < second.length() + 1; i++)
+            matrix[0][i] = 0;
+
+        for (int i = 1; i < first.length() + 1; i++) {
+            for (int j = 1; j < second.length() + 1; j++) {
+                if (first.charAt(i - 1) == second.charAt(j - 1))
+                    matrix[i][j] = matrix[i-1][j-1] + 1;
+                else
+                    matrix[i][j] = Math.max(matrix[i-1][j], matrix[i][j-1]);
+            }
+        }
+
+
+        StringBuilder sb = new StringBuilder();
+        int i = first.length();
+        int j = second.length();
+
+        while (i > 0 && j > 0) {
+            if (first.charAt(i - 1) == second.charAt(j - 1)) {
+                sb.append(first.charAt(i - 1));
+                i--;
+                j--;
+            }
+            else if (matrix[i-1][j] > matrix[i][j-1])
+                i--;
+            else
+                j--;
+        }
+        return sb.reverse().toString();
+    }
+
+    public static void main(String[] args) {
+        longestCommonSubSequence("12", "124");
     }
 
     /**
