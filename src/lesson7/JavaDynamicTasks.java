@@ -2,9 +2,7 @@ package lesson7;
 
 import kotlin.NotImplementedError;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaDynamicTasks {
@@ -72,8 +70,52 @@ public class JavaDynamicTasks {
      * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
      */
     public static List<Integer> longestIncreasingSubSequence(List<Integer> list) {
-        throw new NotImplementedError();
+        if (list.isEmpty()) return new ArrayList<>();
+        if (list.size() == 1) return list;
+
+        int [] subsequence = new int[list.size() + 1];
+        int [] pos = new int[list.size() + 1];
+        int [] prev = new int[list.size()];
+        int len = 0;
+        Arrays.fill(subsequence, Integer.MIN_VALUE);
+        subsequence[0] = Integer.MAX_VALUE;
+
+        for (int i = list.size() - 1; i >= 0; i--) {
+            int j = binarySearch(subsequence, list.get(i));
+            if (list.get(i) < subsequence[j - 1] && list.get(i) > subsequence[j]) {
+                subsequence[j] = list.get(i);
+                pos[j] = i;
+                prev[i] = pos[j - 1];
+                if (j > len) len = j;
+            }
+        }
+
+        List<Integer> result = new ArrayList<>();
+        int index = pos[len];
+
+        for (int i = len - 1; i >= 0; i--) {
+            result.add(list.get(index));
+            index = prev[index];
+        }
+        return result;
     }
+
+    private static int binarySearch(int [] array, int value) {
+        int left = 0;
+        int right = array.length - 1;
+
+        while (left <= right) {
+            int middle = (left + right) / 2;
+            if (value < array[middle]) {
+                left = middle + 1;
+            }
+            else {
+                right = middle - 1;
+            }
+        }
+        return left;
+    }
+
 
     /**
      * Самый короткий маршрут на прямоугольном поле.
