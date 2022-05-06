@@ -38,7 +38,6 @@ public class JavaDynamicTasks {
             }
         }
 
-
         StringBuilder sb = new StringBuilder();
         int i = first.length();
         int j = second.length();
@@ -68,6 +67,9 @@ public class JavaDynamicTasks {
      * Если самых длинных возрастающих подпоследовательностей несколько (как в примере),
      * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
      * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
+     * Затраты:
+     * T = O(n * log n)
+     * R = O(n)
      */
     public static List<Integer> longestIncreasingSubSequence(List<Integer> list) {
         if (list.isEmpty()) return new ArrayList<>();
@@ -92,7 +94,6 @@ public class JavaDynamicTasks {
 
         List<Integer> result = new ArrayList<>();
         int index = pos[len];
-
         for (int i = len - 1; i >= 0; i--) {
             result.add(list.get(index));
             index = prev[index];
