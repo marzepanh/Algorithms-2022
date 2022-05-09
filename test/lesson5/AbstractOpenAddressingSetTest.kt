@@ -77,6 +77,36 @@ abstract class AbstractOpenAddressingSetTest {
                 )
             }
         }
+
+        for (iteration in 1..100) {
+            val numbers = mutableSetOf<Int>()
+            val bitsNumber = random.nextInt(4) + 6
+            val openAddressingSet = create<Int>(bitsNumber)
+            for (i in 1..50) {
+                val num = random.nextInt(100)
+                numbers.add(num)
+                openAddressingSet += num
+            }
+            for (number in numbers) {
+                assertTrue(
+                    number in openAddressingSet,
+                    "The removal of the element prevented access to the other elements."
+                )
+                assertTrue(
+                    openAddressingSet.remove(number),
+                    "An element wasn't removed contrary to expected."
+                )
+                assertFalse(
+                    number in openAddressingSet,
+                    "A supposedly removed element is still in the set."
+                )
+                assertFalse(
+                    openAddressingSet.remove(number),
+                    "A removed element was supposedly removed twice."
+                )
+            }
+            assertTrue(openAddressingSet.isEmpty(), "Set isn't empty")
+        }
     }
 
     protected fun doIteratorTest() {
@@ -119,6 +149,40 @@ abstract class AbstractOpenAddressingSetTest {
             }
             println("All clear!")
         }
+
+
+        val controlSet = mutableSetOf<String>()
+        for (i in 1..15) {
+            val string = random.nextString("abcdefgh12345678", 1, 15)
+            controlSet.add(string)
+        }
+        val openAddressingSet = create<String>(random.nextInt(6) + 4)
+        assertFalse(
+            openAddressingSet.iterator().hasNext(),
+            "Iterator of an empty set should not have any next elements."
+        )
+        assertFailsWith<java.util.NoSuchElementException> { openAddressingSet.iterator().next() }
+        for (elem in controlSet) {
+            openAddressingSet += elem
+        }
+        val iterator1 = openAddressingSet.iterator()
+        val iterator2 = openAddressingSet.iterator()
+        while (iterator1.hasNext()) {
+            assertEquals(
+                iterator2.next(), iterator1.next(),
+                "Calling OpenAddressingSetIterator.hasNext() changes the state of the iterator."
+            )
+        }
+        val iterator = openAddressingSet.iterator()
+        while (iterator.hasNext()) {
+            assertTrue { openAddressingSet.remove(iterator.next()) }
+        }
+        assertTrue { openAddressingSet.isEmpty() }
+        assertFalse(
+            iterator.hasNext(),
+            "Iterator of an empty set should not have any next elements."
+        )
+        assertFailsWith<java.util.NoSuchElementException> { iterator.next() }
     }
 
     protected fun doIteratorRemoveTest() {
@@ -175,6 +239,34 @@ abstract class AbstractOpenAddressingSetTest {
                 )
             }
             println("All clear!")
+        }
+
+        val controlSet = mutableSetOf<String>()
+        for (i in 1..50) {
+            val string = random.nextString("abcdefgh12345678", 1, 15)
+            controlSet.add(string)
+        }
+        val openAddressingSet = create<String>(random.nextInt(6) + 4)
+        assertFailsWith<IllegalStateException>("Nothing to remove in empty set") {
+            openAddressingSet.iterator().remove()
+        }
+        for (element in controlSet) {
+            openAddressingSet += element
+        }
+        val iterator = openAddressingSet.iterator()
+        assertFailsWith<IllegalStateException>("Something was supposedly deleted before the iteration started") {
+            iterator.remove()
+        }
+        var counter = openAddressingSet.size
+        while (iterator.hasNext()) {
+            iterator.next()
+            iterator.remove()
+            counter--
+        }
+        assertEquals(0, counter)
+        assertTrue { openAddressingSet.isEmpty() }
+        for (elem in controlSet) {
+            assertFalse { openAddressingSet.contains(elem) }
         }
     }
 }

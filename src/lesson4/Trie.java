@@ -98,8 +98,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     public class TrieIterator implements Iterator<String> {
 
-        Stack<String> stack = new Stack<>();
-        String prev = null;
+        private final Stack<String> stack = new Stack<>();
+
+        private String prev = null;
 
         private TrieIterator() {
             initNodes(root, "");
