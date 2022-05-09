@@ -242,7 +242,7 @@ abstract class AbstractOpenAddressingSetTest {
         }
 
         val controlSet = mutableSetOf<String>()
-        for (i in 1..50) {
+        for (i in 1..15) {
             val string = random.nextString("abcdefgh12345678", 1, 15)
             controlSet.add(string)
         }
